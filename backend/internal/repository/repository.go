@@ -268,3 +268,38 @@ func (r *Repository) GetBookingsForDate(date string) ([]models.Booking, error) {
 	}
 	return bookings, nil
 }
+
+func (r *Repository) GetSettings() (*models.Settings, error) {
+	var s models.Settings
+	query := `
+		SELECT id, min_booking_length, max_booking_length, max_guest_per_booking, breakfast_price
+		FROM settings
+		LIMIT 1`
+	err := r.DB.QueryRow(query).Scan(
+		&s.ID,
+		&s.MinBookingLength,
+		&s.MaxBookingLength,
+		&s.MaxGuestPerBooking,
+		&s.BreakfastPrice,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("settings not found")
+		}
+		return nil, err
+	}
+	return &s, nil
+}
+
+// UpdateSettings updates the sole settings record in the database.
+func (r *Repository) UpdateSettings(s *models.Settings) error {
+	query := `
+		UPDATE settings
+		SET min_booking_length = $1,
+		    max_booking_length = $2,
+		    max_guest_per_booking = $3,
+		    breakfast_price = $4
+		WHERE id = $5`
+	_, err := r.DB.Exec(query, s.MinBookingLength, s.MaxBookingLength, s.MaxGuestPerBooking, s.BreakfastPrice, s.ID)
+	return err
+}

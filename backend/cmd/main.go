@@ -25,6 +25,7 @@ func main() {
 	guestHandler := &handlers.GuestHandler{Repo: repo}
 	cabinHandler := &handlers.CabinHandler{Repo: repo}
 	bookingHandler := &handlers.BookingHandler{Repo: repo}
+	settingsHandler := &handlers.SettingsHandler{Repo: repo}
 
 	r := mux.NewRouter()
 
@@ -40,6 +41,9 @@ func main() {
 	r.HandleFunc("/api/bookings/{id:[0-9]+}", bookingHandler.DeleteBooking).Methods("DELETE")
 
 	r.HandleFunc("/api/stays/today-activity", bookingHandler.GetTodaysActivity).Methods("GET")
+
+	r.HandleFunc("/api/settings", settingsHandler.GetSettings).Methods("GET")
+	r.HandleFunc("/api/settings", settingsHandler.UpdateSettings).Methods("PUT")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5174"},

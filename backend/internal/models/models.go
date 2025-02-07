@@ -33,3 +33,11 @@ type Booking struct {
 	IsPaid       bool      `json:"isPaid"`
 	NumGuests    int       `json:"numGuests"`
 }
+
+type Settings struct {
+	ID                 int     `json:"id"`
+	MinBookingLength   int     `json:"minBookingLength"`
+	MaxBookingLength   int     `json:"maxBookingLength"`
+	MaxGuestPerBooking int     `json:"maxGuestPerBooking"`
+	BreakfastPrice     float64 `json:"breakfastPrice"`
+}

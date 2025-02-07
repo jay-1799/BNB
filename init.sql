@@ -4,6 +4,7 @@
 DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS cabins;
 DROP TABLE IF EXISTS guests;
+DROP TABLE IF EXISTS settings;
 
 CREATE TABLE guests (
     id SERIAL PRIMARY KEY,
@@ -36,6 +37,18 @@ CREATE TABLE bookings (
     is_paid BOOLEAN DEFAULT false,
     num_guests INTEGER NOT NULL
 );
+
+
+CREATE TABLE settings (
+    id SERIAL PRIMARY KEY,
+    min_booking_length INTEGER NOT NULL CHECK (min_booking_length > 0),
+    max_booking_length INTEGER NOT NULL CHECK (max_booking_length > min_booking_length),
+    max_guest_per_booking INTEGER NOT NULL CHECK (max_guest_per_booking > 0),
+    breakfast_price NUMERIC(10,2) NOT NULL CHECK (breakfast_price >= 0)
+);
+
+INSERT INTO settings (min_booking_length, max_booking_length, max_guest_per_booking, breakfast_price)
+VALUES (1, 30, 5, 9.99);
 
 INSERT INTO guests (full_name, email, nationality, national_id, country_flag)
 VALUES 
