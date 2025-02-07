@@ -180,3 +180,91 @@ func (r *Repository) GetAllBookings() ([]models.Booking, error) {
 	}
 	return bookings, nil
 }
+
+func (r *Repository) GetBookings(after, before string) ([]models.Booking, error) {
+	query := `
+        SELECT id, created_at, start_date, end_date, cabin_id, guest_id, has_breakfast, observations, is_paid, num_guests
+        FROM bookings`
+
+	// If filtering is requested, modify the query.
+	if after != "" && before != "" {
+		query += ` WHERE created_at BETWEEN $1 AND $2`
+		rows, err := r.DB.Query(query, after, before)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+
+		var bookings []models.Booking
+		for rows.Next() {
+			var b models.Booking
+			if err := rows.Scan(&b.ID, &b.CreatedAt, &b.StartDate, &b.EndDate, &b.CabinID, &b.GuestID, &b.HasBreakfast, &b.Observations, &b.IsPaid, &b.NumGuests); err != nil {
+				return nil, err
+			}
+			bookings = append(bookings, b)
+		}
+		return bookings, nil
+	}
+
+	rows, err := r.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookings []models.Booking
+	for rows.Next() {
+		var b models.Booking
+		if err := rows.Scan(&b.ID, &b.CreatedAt, &b.StartDate, &b.EndDate, &b.CabinID, &b.GuestID, &b.HasBreakfast, &b.Observations, &b.IsPaid, &b.NumGuests); err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, b)
+	}
+	return bookings, nil
+}
+
+func (r *Repository) UpdateBooking(b *models.Booking) error {
+	query := `
+        UPDATE bookings
+        SET start_date = $1,
+            end_date = $2,
+            cabin_id = $3,
+            guest_id = $4,
+            has_breakfast = $5,
+            observations = $6,
+            is_paid = $7,
+            num_guests = $8
+        WHERE id = $9`
+
+	_, err := r.DB.Exec(query, b.StartDate, b.EndDate, b.CabinID, b.GuestID, b.HasBreakfast, b.Observations, b.IsPaid, b.NumGuests, b.ID)
+	return err
+}
+
+func (r *Repository) DeleteBooking(id int) error {
+	query := `DELETE FROM bookings WHERE id = $1`
+	_, err := r.DB.Exec(query, id)
+	return err
+}
+
+func (r *Repository) GetBookingsForDate(date string) ([]models.Booking, error) {
+	query := `
+        SELECT id, created_at, start_date, end_date, cabin_id, guest_id, has_breakfast, observations, is_paid, num_guests
+        FROM bookings
+        WHERE start_date = $1 OR end_date = $1`
+
+	rows, err := r.DB.Query(query, date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookings []models.Booking
+	for rows.Next() {
+		var b models.Booking
+		if err := rows.Scan(&b.ID, &b.CreatedAt, &b.StartDate, &b.EndDate, &b.CabinID, &b.GuestID, &b.HasBreakfast, &b.Observations, &b.IsPaid, &b.NumGuests); err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, b)
+	}
+	return bookings, nil
+}

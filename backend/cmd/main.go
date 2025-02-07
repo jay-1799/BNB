@@ -36,6 +36,10 @@ func main() {
 
 	r.HandleFunc("/api/bookings", bookingHandler.GetAllBookings).Methods("GET")
 	r.HandleFunc("/api/bookings/{id:[0-9]+}", bookingHandler.GetBookingByID).Methods("GET")
+	r.HandleFunc("/api/bookings/{id:[0-9]+}", bookingHandler.UpdateBooking).Methods("PUT")
+	r.HandleFunc("/api/bookings/{id:[0-9]+}", bookingHandler.DeleteBooking).Methods("DELETE")
+
+	r.HandleFunc("/api/stays/today-activity", bookingHandler.GetTodaysActivity).Methods("GET")
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5174"},

@@ -1,97 +1,86 @@
 import { getToday } from "../utils/helpers";
-import supabase from "./supabase";
+
+const BACKEND_URL = "http://localhost:8080";
 
 export async function getBooking(id) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("*, cabins(*), guests(*)")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    console.error(error);
+  const response = await fetch(`${BACKEND_URL}/api/bookings/${id}`);
+  if (!response.ok) {
+    console.error("Error fetching booking:", response.statusText);
     throw new Error("Booking not found");
   }
-
+  const data = await response.json();
   return data;
 }
 
-// Returns all BOOKINGS that are were created after the given date. Useful to get bookings created in the last 30 days, for example.
+// Get all bookings created between a given date and today.
 export async function getBookingsAfterDate(date) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("created_at, totalPrice, extrasPrice")
-    .gte("created_at", date)
-    .lte("created_at", getToday({ end: true }));
-
-  if (error) {
-    console.error(error);
-    throw new Error("Bookings could not get loaded");
+  const response = await fetch(
+    `${BACKEND_URL}/api/bookings?after=${encodeURIComponent(
+      date
+    )}&before=${encodeURIComponent(getToday({ end: true }))}`
+  );
+  if (!response.ok) {
+    console.error("Error fetching bookings:", response.statusText);
+    throw new Error("Bookings could not be loaded");
   }
-
+  const data = await response.json();
   return data;
 }
 
-// Returns all STAYS that are were created after the given date
+// Get all stays that start between a given date and today.
 export async function getStaysAfterDate(date) {
-  const { data, error } = await supabase
-    .from("bookings")
-    // .select('*')
-    .select("*, guests(fullName)")
-    .gte("startDate", date)
-    .lte("startDate", getToday());
-
-  if (error) {
-    console.error(error);
-    throw new Error("Bookings could not get loaded");
+  // If stays are part of the bookings table, you might have a separate endpoint or use the same one with different filtering.
+  const response = await fetch(
+    `${BACKEND_URL}/api/bookings?staysAfter=${encodeURIComponent(
+      date
+    )}&staysBefore=${encodeURIComponent(getToday())}`
+  );
+  if (!response.ok) {
+    console.error("Error fetching stays:", response.statusText);
+    throw new Error("Bookings could not be loaded");
   }
-
+  const data = await response.json();
   return data;
 }
 
-// Activity means that there is a check in or a check out today
+// Get today's activity (e.g., check-ins or check-outs).
 export async function getStaysTodayActivity() {
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("*, guests(fullName, nationality, countryFlag)")
-    .or(
-      `and(status.eq.unconfirmed,startDate.eq.${getToday()}),and(status.eq.checked-in,endDate.eq.${getToday()})`
-    )
-    .order("created_at");
-
-  // Equivalent to this. But by querying this, we only download the data we actually need, otherwise we would need ALL bookings ever created
-  // (stay.status === 'unconfirmed' && isToday(new Date(stay.startDate))) ||
-  // (stay.status === 'checked-in' && isToday(new Date(stay.endDate)))
-
-  if (error) {
-    console.error(error);
-    throw new Error("Bookings could not get loaded");
+  const today = getToday();
+  const response = await fetch(
+    `${BACKEND_URL}/api/stays/today-activity?date=${encodeURIComponent(today)}`
+  );
+  if (!response.ok) {
+    console.error("Error fetching today's activity:", response.statusText);
+    throw new Error("Bookings could not be loaded");
   }
+  const data = await response.json();
   return data;
 }
 
 export async function updateBooking(id, obj) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .update(obj)
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error(error);
+  const response = await fetch(`${BACKEND_URL}/api/bookings/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(obj),
+  });
+  if (!response.ok) {
+    console.error("Error updating booking:", response.statusText);
     throw new Error("Booking could not be updated");
   }
+  const data = await response.json();
   return data;
 }
 
 export async function deleteBooking(id) {
-  // REMEMBER RLS POLICIES
-  const { data, error } = await supabase.from("bookings").delete().eq("id", id);
-
-  if (error) {
-    console.error(error);
+  const response = await fetch(`${BACKEND_URL}/api/bookings/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    console.error("Error deleting booking:", response.statusText);
     throw new Error("Booking could not be deleted");
   }
+  const data = await response.json();
   return data;
 }
