@@ -46,7 +46,7 @@ func main() {
 	r.HandleFunc("/api/settings", settingsHandler.UpdateSettings).Methods("PUT")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5174"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
