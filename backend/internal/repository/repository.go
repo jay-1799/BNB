@@ -107,6 +107,12 @@ func (r *Repository) GetAllCabins() ([]models.Cabin, error) {
 	return cabins, nil
 }
 
+func (r *Repository) DeleteCabin(id int) error {
+	query := `DELETE FROM cabins WHERE id = $1`
+	_, err := r.DB.Exec(query, id)
+	return err
+}
+
 // ---------------------
 // Booking Repository Functions
 // ---------------------

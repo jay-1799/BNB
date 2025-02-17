@@ -34,6 +34,8 @@ func main() {
 
 	r.HandleFunc("/api/cabins", cabinHandler.GetAllCabins).Methods("GET")
 	r.HandleFunc("/api/cabins/{id:[0-9]+}", cabinHandler.GetCabinByID).Methods("GET")
+	r.HandleFunc("/api/cabins/{id:[0-9]+}", cabinHandler.DeleteCabin).Methods("DELETE")
+	r.HandleFunc("/api/cabins", cabinHandler.CreateCabin).Methods("POST")
 
 	r.HandleFunc("/api/bookings", bookingHandler.GetAllBookings).Methods("GET")
 	r.HandleFunc("/api/bookings/{id:[0-9]+}", bookingHandler.GetBookingByID).Methods("GET")
