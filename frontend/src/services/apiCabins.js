@@ -23,12 +23,18 @@ export async function deleteCabin(id) {
 }
 
 export async function createCabin(cabin) {
+  const formattedCabin = {
+    ...cabin,
+    maxCapacity: Number(cabin.maxCapacity), // Convert to integer
+    regularPrice: Number(cabin.regularPrice), // Convert to float
+    discount: Number(cabin.discount), // Convert to float
+  };
   const response = await fetch(`${BACKEND_URL}/api/cabins`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(cabin),
+    body: JSON.stringify(formattedCabin),
   });
   if (!response.ok) {
     const errorText = await response.text();
