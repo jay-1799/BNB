@@ -4,6 +4,7 @@ import (
 	"backend/internal/models"
 	"backend/internal/repository"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -61,11 +62,13 @@ func (h *CabinHandler) DeleteCabin(w http.ResponseWriter, r *http.Request) {
 func (h *CabinHandler) CreateCabin(w http.ResponseWriter, r *http.Request) {
 	var cabin models.Cabin
 	if err := json.NewDecoder(r.Body).Decode(&cabin); err != nil {
+		log.Print(err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
 	if err := h.Repo.CreateCabin(&cabin); err != nil {
+		log.Print(err)
 		http.Error(w, "Failed to create cabin", http.StatusInternalServerError)
 		return
 	}
