@@ -11,7 +11,8 @@ export async function getSettings() {
   return data;
 }
 
-export async function updateSettings(settings) {
+export async function updateSetting(settings) {
+  //todo update according to new settings update form in ui
   const response = await fetch(`${BACKEND_URL}/api/settings`, {
     method: "PUT",
     headers: {

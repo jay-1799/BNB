@@ -22,7 +22,19 @@ export async function deleteCabin(id) {
   return data;
 }
 
+export async function uploadImageToS3(image) {
+  //todo
+  return image;
+}
+
+export async function editCabin(cabin) {
+  //todo
+  return cabin;
+}
+
 export async function createCabin(cabin) {
+  const imageName = `${Math.random()}-${cabin.image.name}`.replaceAll("/");
+  // const imagePath = "s3url/`${imageName}`";
   const formattedCabin = {
     ...cabin,
     maxCapacity: Number(cabin.maxCapacity), // Convert to integer
@@ -41,5 +53,11 @@ export async function createCabin(cabin) {
     console.error("Error creating cabin:", errorText);
     throw new Error("Failed to create cabin");
   }
+  const uploadError = await uploadImageToS3(imageName);
+  if (uploadError) {
+    //todo
+    deleteCabin(cabin);
+  }
+
   return await response.json();
 }
